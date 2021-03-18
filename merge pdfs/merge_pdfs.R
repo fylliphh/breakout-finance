@@ -7,15 +7,23 @@ library(pdftools)
 library(magrittr)
 library(EBImage)
 
-wd <- "C:/Users/Philipp/Desktop/2019"
+wd <- "C:/Users/Philipp/Desktop"
 setwd(wd)
 
 # Functions ---------------------------------------------------------------
-combine_pdfs_in_subfolder <- function(folder_name) {
+#' Combine several PDF files in a folder
+#'
+#' @param folder_name string, name of folder on the level you may iterate over (e.g. "2019_01 Januar")
+#' @param subfolder string, has to start with a slash (e.g. "/Belege")
+#'
+#' @return combined PDF file is created in working directory
+#' @export
+#' 
+combine_pdfs_in_subfolder <- function(folder_name, subfolder = "") {
   # get file names
-  files <- paste0(folder_name, "/Belege") %>% 
+  files <- paste0(folder_name, subfolder) %>% 
     list.files() %>% 
-    paste0(paste0(folder_name, "/Belege/"), .)
+    paste0(paste0(folder_name, subfolder,"/"), .)
   # replace ä,ö,ü
   files_cleaned <- stringi::stri_replace_all_fixed(
     files, 
@@ -39,9 +47,9 @@ combine_pdfs_in_subfolder <- function(folder_name) {
     }
   } 
   
-  files_with_converted <- paste0(folder_name, "/Belege") %>% 
+  files_with_converted <- paste0(folder_name, subfolder) %>% 
     list.files() %>% 
-    paste0(paste0(folder_name, "/Belege/"), .)
+    paste0(paste0(folder_name, subfolder, "/"), .)
   only_pdfs <- files_with_converted[which(stringr::str_detect(files_with_converted, ".pdf"))]
   pdftools::pdf_combine(only_pdfs, output = paste0(folder_name, "_combined.pdf"))
   print(paste(folder_name, "done!"))
@@ -81,5 +89,5 @@ file.rename(list.files(),
               ))
 
 for (sub_dir in list.files()) {
-  combine_pdfs_in_subfolder(sub_dir)
+  combine_pdfs_in_subfolder(sub_dir, "/Belege")
 }
